@@ -17,10 +17,12 @@ permissions:
   pages: write
   id-token: write
 
-# Never let two deploys race; let a newer push supersede a queued one.
+# Never let two deploys race. Do NOT cancel in progress: this account's runner
+# queue is slow, so a run can sit queued for minutes, and cancelling it the
+# moment the next push lands meant deploys kept dying before they ever started.
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
