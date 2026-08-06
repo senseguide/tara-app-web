@@ -1,0 +1,38 @@
+# Publishes this repo (a pre-built Expo web export) to GitHub Pages.
+#
+# The repo previously used Pages' legacy branch build, which failed silently
+# and repeatedly ("Page build failed.") and at one point hung in "building" for
+# many minutes, leaving app.dailytara.com serving a stale bundle. This workflow
+# replaces it: the site is already built, so it only uploads the checkout and
+# deploys it, and every run leaves a readable log.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two deploys race; let a newer push supersede a queued one.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4
